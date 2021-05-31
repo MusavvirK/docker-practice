@@ -1,10 +1,10 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, abort
 from models import db, UserModel
 import pymysql
 pymysql.install_as_MySQLdb()
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://musavvir:footballers@localhost/dockertest';
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:root@db/docker_practice_v3'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 
@@ -13,12 +13,14 @@ db.init_app(app)
 def create_table():
     db.create_all()
 
+
 @app.route('/')
 def start():
     allUsers = RetrieveUserList()
     return render_template('home.html', users=allUsers)
 
-@app.route('/user/create', methods=['GET','POST'])
+
+@app.route('/user/create', methods=['GET', 'POST'])
 def create():
     if request.method == 'GET':
         return render_template('createUser.html')
@@ -36,7 +38,6 @@ def create():
 
 def RetrieveUserList():
     users = UserModel.query.all()
-    #return render_template('userlist.html', users=users)
     return users
 
 
@@ -57,7 +58,7 @@ def update(id):
             db.session.add(user)
             db.session.commit()
             return redirect('/')
-        return f"user does not exist"
+        return "user does not exist"
 
     return render_template('update.html', user=user)
 
@@ -74,5 +75,6 @@ def delete(id):
 
     return render_template('delete.html')
 
+
 if __name__ == "__main__":
-    app.run(host='localhost', port=5000)
+    app.run(debug=True, host='0.0.0.0')
